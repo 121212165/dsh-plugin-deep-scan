@@ -1,5 +1,7 @@
 # dsh-plugin-deep-scan
 
+**EN** · Iterative GitHub deep search: four channels (exact phrase, broad match, README body, topic expansion), new keywords mined out of the previous round, and a diminishing-returns stop rule instead of a fixed page count. `/deep-scan` returns a ranked pool annotating which channel found each hit and which words matched. · Limits: the search API caps at 1,000 results per query; generic cross-industry words sink to the noisy channels.
+
 DeepSeek Harness (dsh) 插件：**GitHub 赛道深度扫描器**。一条链路跑完"多词搜索 → 挖词 → 迭代 → 止损"，自动把一个口语化的赛道需求变成几百个候选仓库的精准榜单。
 
 适合回答："这个赛道有哪些开源项目/竞品？我下一个产品该卡哪个位？哪个是漏网大鱼？"
@@ -42,7 +44,7 @@ DeepSeek Harness (dsh) 插件：**GitHub 赛道深度扫描器**。一条链路�
 | `deep` | `5` | 深挖（README 摘要）的仓库数 |
 | `newKeepRatio` | `0.25` | 一轮新发现占比低于此值 → 止损 |
 
-## 已知局限
+## 已知边界
 
 - 挖词只走 topics 标签（确定性可测），简介里的功能词（如"去AI味/拆文"）由 agent 看完报告后自行追加搜索——这是分工：插件负责可复现的链路，agent 负责语义跳转
 - 跨行业通用词（审稿/续写/工作流）会漏噪声进池，但噪声沉在泛搜/正文通道底部，不动摇深挖区
@@ -50,8 +52,18 @@ DeepSeek Harness (dsh) 插件：**GitHub 赛道深度扫描器**。一条链路�
 
 ## 安装
 
-```bash
-npm install && npm run check   # typecheck + 13 tests + build
+三步，实测于 `@deepseek-ai/dsh@0.1.7-alpha.1`（需 `pnpm` 在 PATH 上）：
+
+```sh
+# ① 装进 profile：dsh plugin 把参数原样转发给 pnpm，git 包会自动跑 prepare 构建 lib/
+dsh plugin --profile web add github:121212165/dsh-plugin-deep-scan
 ```
 
-dsh profile 挂载见 `cordis.patch.yml`。
+② 把本仓库根目录 `cordis.patch.yml` 的内容**并进** `$DSH_HOME/profiles/web/cordis.patch.yml`。
+该文件默认是 `[]`，所以要么整份替换，要么把 insert 条目并进同一个数组；**不要直接追加**——
+追加会形成两个 YAML 文档，启动即报
+`failed to parse overlay ... end of the stream or a document separator is expected`（本机实测踩过）。
+
+③ 重启 dsh。配置层与 client 半都要重启才生效（客户端按 boot 时算出的内容 rev 下发，硬刷新浏览器没用）。
+
+自检挂载：`dsh --profile web --dump-config | grep dsh-plugin-deep-scan`，应看到该条目。
