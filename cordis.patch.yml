@@ -1,0 +1,11 @@
+# Mounts deep-scan into a dsh profile.
+- insert:
+    - id: deep-scan
+      name: dsh-plugin-deep-scan
+      config:
+        enabled: true
+        # tokenEnv: [GITHUB_TOKEN, GH_TOKEN]   # GitHub API token（无 token 时搜索限流 10 req/min）
+        perChannel: 30        # 每通道每词拉取条数
+        mineRounds: 2         # 首轮之后自动挖词迭代几轮
+        deep: 5               # 深挖（README 摘要）的仓库数
+        newKeepRatio: 0.25    # 一轮新发现占比低于此值 → 止损收尾
