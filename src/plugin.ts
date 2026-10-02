@@ -77,11 +77,11 @@ export function apply(ctx: Context, config: Config): void {
         schema: { type: 'string' } as const,
         render: (_args, value) => [{ type: 'text', text: value }],
       },
-      presentCall: (args: { queries?: string }) => {
+      presentCall: (args: { queries: string }) => {
         const queries = String(args.queries ?? '');
         return { card: 'generic', title: `深扫：${queries}`, kind: 'deep-scan', rawInput: queries };
       },
-      presentResult: (args: { queries?: string }) => {
+      presentResult: (args: { queries: string }) => {
         const queries = String(args.queries ?? '');
         return { card: 'generic', title: `深扫完成：${queries}`, kind: 'deep-scan', rawInput: queries };
       },
