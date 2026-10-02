@@ -79,11 +79,11 @@ export function apply(ctx: Context, config: Config): void {
       },
       presentCall: (args: { queries: string }) => {
         const queries = String(args.queries ?? '');
-        return { card: 'generic', title: `深扫：${queries}`, kind: 'deep-scan', rawInput: queries };
+        return { card: 'generic', title: `深扫：${queries}`, kind: 'search', rawInput: queries };
       },
       presentResult: (args: { queries: string }) => {
         const queries = String(args.queries ?? '');
-        return { card: 'generic', title: `深扫完成：${queries}`, kind: 'deep-scan', rawInput: queries };
+        return { card: 'generic', title: `深扫完成：${queries}`, kind: 'search', rawInput: queries };
       },
       async execute(args: { queries: string; language?: string; minStars?: number }) {
         const result = await runPipeline({
