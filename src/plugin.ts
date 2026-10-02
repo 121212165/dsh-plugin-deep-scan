@@ -77,6 +77,14 @@ export function apply(ctx: Context, config: Config): void {
         schema: { type: 'string' } as const,
         render: (_args, value) => [{ type: 'text', text: value }],
       },
+      presentCall: (args: { queries?: string }) => {
+        const queries = String(args.queries ?? '');
+        return { card: 'generic', title: `深扫：${queries}`, kind: 'deep-scan', rawInput: queries };
+      },
+      presentResult: (args: { queries?: string }) => {
+        const queries = String(args.queries ?? '');
+        return { card: 'generic', title: `深扫完成：${queries}`, kind: 'deep-scan', rawInput: queries };
+      },
       async execute(args: { queries: string; language?: string; minStars?: number }) {
         const result = await runPipeline({
           queries: args.queries.split(/[|;；｜]/).map((part) => part.trim()).filter(Boolean).slice(0, 6),
