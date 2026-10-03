@@ -54,11 +54,11 @@ export function apply(ctx: Context, config: Config): void {
 
   ctx.commands.register({
     name: 'deep-scan',
-    description: 'GitHub 深度扫描：/deep-scan 词1|词2（四通道 + 挖词迭代 + 精准度排序）',
-    input: { hint: '<词1|词2|...>' },
+    description: 'GitHub 深度扫描：直接说人话（/deep-scan 想找 AI 写小说的开源项目）或给 2-4 个变体（/deep-scan 写小说|网文|AI novel）。说人话时第一轮以整句搜索，靠挖词迭代自己扩展',
+    input: { hint: '<一句话需求 或 词1|词2|...>' },
     handler: ({ rawInput }) => {
       const query = String(rawInput ?? '').trim();
-      if (!query) return Promise.resolve({ kind: 'error' as const, text: '给点搜索词，例如 /deep-scan 写小说|网文|AI novel' });
+      if (!query) return Promise.resolve({ kind: 'error' as const, text: '想找什么？直接说人话（/deep-scan AI 写小说的开源项目）或给几个变体（写小说|网文|AI novel）' });
       return scan(query, config).then((text) => ({ kind: 'success' as const, text }));
     },
   });
