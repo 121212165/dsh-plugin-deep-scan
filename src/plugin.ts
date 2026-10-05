@@ -8,6 +8,8 @@ import Schema from '@deepseek-ai/schemastery';
 import { defineTool } from '@deepseek-ai/dsh-tools';
 import type {} from '@deepseek-ai/dsh-commands';
 import type {} from '@deepseek-ai/dsh-tools';
+import { homedir } from 'node:os';
+import { join } from 'node:path';
 
 import { runPipeline, readToken } from './deep-scan/pipeline.ts';
 
@@ -32,10 +34,39 @@ export const Config = Schema.object({
   newKeepRatio: Schema.number().default(0.25),
 });
 
+import { runPipeline, readToken } from './deep-scan/pipeline.ts';
+import { saveReport } from './report.ts';
+
+export const name = 'deep-scan';
+export const inject = ['commands', 'tools'];
+
+export interface Config {
+  enabled: boolean;
+  tokenEnv: string[];
+  perChannel: number;
+  mineRounds: number;
+  deep: number;
+  newKeepRatio: number;
+  /** where /deep-scan --save writes reports; /obsidian-push-file archives them */
+  reportDir?: string;
+}
+
+export const Config = Schema.object({
+  enabled: Schema.boolean().default(true),
+  tokenEnv: Schema.array(Schema.string()).default(['GITHUB_TOKEN', 'GH_TOKEN']),
+  perChannel: Schema.natural().default(30),
+  mineRounds: Schema.natural().default(2),
+  deep: Schema.natural().default(5),
+  newKeepRatio: Schema.number().default(0.25),
+  reportDir: Schema.string().default('~/.dsh/deep-scan/reports'),
+});
+
 async function scan(rawQueries: string, config: Config): Promise<string> {
-  const queries = rawQueries.split(/[|;；｜]/).map((part) => part.trim()).filter(Boolean).slice(0, 6);
+  const wantsSave = /\s--save\b/.test(rawQueries);
+  const topic = rawQueries.replace(/\s--save\b/g, '').trim();
+  const queries = topic.split(/[|;；｜]/).map((part) => part.trim()).filter(Boolean).slice(0, 6);
   if (!queries.length) {
-    return '用法：/deep-scan 词1|词2|词3 —— 多词分隔，每词自动跑 短语/泛搜/README正文/赛道 四通道，再挖词迭代。例：/deep-scan 写小说|网文|AI novel';
+    return '用法：/deep-scan 词1|词2|词3 [--save] —— 多词分隔，每词自动跑 短语/泛搜/README正文/赛道 四通道，再挖词迭代。--save 把报告落盘后可 /obsidian-push-file 归档。例：/deep-scan 写小说|网文|AI novel';
   }
   const result = await runPipeline({
     queries,
@@ -45,7 +76,21 @@ async function scan(rawQueries: string, config: Config): Promise<string> {
     newKeepRatio: config.newKeepRatio,
     token: readToken(config.tokenEnv),
   });
-  return `${result.report}\n\n（链路结束：${result.stopReason}）`;
+  const text = `${result.report}\n\n（链路结束：${result.stopReason}）`;
+  if (!wantsSave) return text;
+  try {
+    const dir = config.reportDir ? expandHome(config.reportDir) : reportDirDefault;
+    const file = saveReport(dir, queries[0]!, text, new Date());
+    return `${text}\n\n📄 报告已落盘：${file}——可 /obsidian-push-file ${file} 归档进 Obsidian。`;
+  } catch (error) {
+    return `${text}\n\n⚠ 报告落盘失败：${String(error)}`;
+  }
+}
+
+const reportDirDefault = '~/.dsh/deep-scan/reports';
+
+export function expandHome(path: string): string {
+  return path.startsWith('~') ? join(homedir(), path.slice(1)) : path;
 }
 
 export function apply(ctx: Context, config: Config): void {
