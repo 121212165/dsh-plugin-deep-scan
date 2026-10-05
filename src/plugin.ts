@@ -12,29 +12,6 @@ import { homedir } from 'node:os';
 import { join } from 'node:path';
 
 import { runPipeline, readToken } from './deep-scan/pipeline.ts';
-
-export const name = 'deep-scan';
-export const inject = ['commands', 'tools'];
-
-export interface Config {
-  enabled: boolean;
-  tokenEnv: string[];
-  perChannel: number;
-  mineRounds: number;
-  deep: number;
-  newKeepRatio: number;
-}
-
-export const Config = Schema.object({
-  enabled: Schema.boolean().default(true),
-  tokenEnv: Schema.array(Schema.string()).default(['GITHUB_TOKEN', 'GH_TOKEN']),
-  perChannel: Schema.natural().default(30),
-  mineRounds: Schema.natural().default(2),
-  deep: Schema.natural().default(5),
-  newKeepRatio: Schema.number().default(0.25),
-});
-
-import { runPipeline, readToken } from './deep-scan/pipeline.ts';
 import { saveReport } from './report.ts';
 
 export const name = 'deep-scan';
