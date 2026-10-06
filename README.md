@@ -1,5 +1,8 @@
 # dsh-plugin-deep-scan
 
+> 🧩 **dsh 插件家族**（22 件）：总目录 **[dsh-plugin-family](https://github.com/121212165/dsh-plugin-family)** ｜ 明星插件：**[ide-hub](https://github.com/121212165/dsh-plugin-ide-hub)** 跨 IDE 统一管理 · **[task-forge](https://github.com/121212165/dsh-plugin-task-forge)** 跨窗口无损交接 · **[quota](https://github.com/121212165/dsh-plugin-quota)** 实时用量仪表
+
+
 **EN** · Iterative GitHub deep search: four channels (exact phrase, broad match, README body, topic expansion), new keywords mined out of the previous round, and a diminishing-returns stop rule instead of a fixed page count. `/deep-scan` returns a ranked pool annotating which channel found each hit and which words matched. · Limits: the search API caps at 1,000 results per query; generic cross-industry words sink to the noisy channels.
 
 DeepSeek Harness (dsh) 插件：**GitHub 赛道深度扫描器**。一条链路跑完"多词搜索 → 挖词 → 迭代 → 止损"，自动把一个口语化的赛道需求变成几百个候选仓库的精准榜单。
