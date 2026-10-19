@@ -5,23 +5,23 @@
  *  returns of round 3+ are the stop signal, mirroring the manual three-round
  *  sweep that produced 1088 unique repos on the AI-novel niche. */
 
-import { CHANNEL_ORDER, rank, ranked, render, type Pool, type RenderOptions } from './rank.ts';
+import { rank, ranked, render, type Pool, type RenderOptions } from './rank.ts';
 import { mineTopics, minedToQueries } from './mine.ts';
 import { searchAll, fetchReadmeHead, readTokenFromEnv, type Channel, type FetchOptions } from './sources.ts';
 
 export interface PipelineOptions {
   queries: string[];
-  language?: string;
-  minStars?: number;
+  language?: string | undefined;
+  minStars?: number | undefined;
   /** rounds after the first that may mine-and-run (default 2 → up to 3 rounds total) */
-  mineRounds?: number;
-  perChannel?: number;
-  deep?: number;
-  newKeepRatio?: number;
-  maxQueriesPerRound?: number;
-  token?: string;
-  fetchImpl?: typeof fetch;
-  signal?: AbortSignal;
+  mineRounds?: number | undefined;
+  perChannel?: number | undefined;
+  deep?: number | undefined;
+  newKeepRatio?: number | undefined;
+  maxQueriesPerRound?: number | undefined;
+  token?: string | undefined;
+  fetchImpl?: typeof fetch | undefined;
+  signal?: AbortSignal | undefined;
 }
 
 export interface PipelineResult {

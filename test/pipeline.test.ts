@@ -15,7 +15,7 @@ const item = (fullName: string, stars: number, topics: string[]) => ({
  *  all three channels and seeds topic:novel-writing; that topic returns one
  *  new repo; the pool then dries up (no topic with count >= 2 left) → the
  *  chain stops with "没有挖出新搜索词". */
-const fakeFetch = (async (url: string | URL, init: { headers: Record<string, string> }) => {
+const fakeFetch = (async (url: string | URL) => {
   const target = typeof url === 'string' ? url : url.href;
   if (target.includes('/readme')) {
     return {

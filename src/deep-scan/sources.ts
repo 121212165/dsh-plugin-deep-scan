@@ -7,9 +7,9 @@
  *  The fetch impl is injectable so tests run offline. */
 
 export interface FetchOptions {
-  token?: string;
-  signal?: AbortSignal;
-  fetchImpl?: typeof fetch;
+  token?: string | undefined;
+  signal?: AbortSignal | undefined;
+  fetchImpl?: typeof fetch | undefined;
 }
 
 export interface RawRepo {
@@ -23,10 +23,12 @@ export interface RawRepo {
   archived?: boolean;
 }
 
-type FetchFn = (url: string, init: { headers: Record<string, string>; signal?: AbortSignal }) => Promise<{ ok: boolean; status: number; json(): Promise<unknown>; text(): Promise<string> }>;
+type FetchFn = (url: string, init: { headers: Record<string, string>; signal?: AbortSignal | undefined }) => Promise<{ ok: boolean; status: number; json(): Promise<unknown>; text(): Promise<string> }>;
 
 const defaultFetch: FetchFn = async (url, init) => {
-  const response = await fetch(url, { headers: init.headers, signal: init.signal });
+  const requestInit: RequestInit = { headers: init.headers };
+  if (init.signal !== undefined) requestInit.signal = init.signal;
+  const response = await fetch(url, requestInit);
   return { ok: response.ok, status: response.status, json: () => response.json(), text: () => response.text() };
 };
 
@@ -56,13 +58,13 @@ export function queryFor(term: string, channel: Channel, qualifiers = ''): strin
 export interface SearchRequest {
   term: string;
   channel: Channel;
-  qualifiers?: string;
-  perChannel?: number;
+  qualifiers?: string | undefined;
+  perChannel?: number | undefined;
 }
 
 /** One GitHub search call → raw hits. A failed call returns [] (degrade, not crash). */
 export async function searchChannel(request: SearchRequest, options: FetchOptions): Promise<RawRepo[]> {
-  const q = queryFor(request.term, request.channel, request.qualifiers);
+  const q = queryFor(request.term, request.channel, request.qualifiers ?? '');
   const sort = request.channel === 'phrase' ? '' : '&sort=stars';
   const perPage = Math.min(request.perChannel ?? 30, 100);
   try {
@@ -77,7 +79,7 @@ export async function searchChannel(request: SearchRequest, options: FetchOption
 }
 
 /** Run every (term × channel) pair with bounded concurrency. */
-export async function searchAll(terms: string[], channels: Channel[], options: FetchOptions & { perChannel?: number; qualifiers?: string } = {}): Promise<Map<string, RawRepo[]>> {
+export async function searchAll(terms: string[], channels: Channel[], options: FetchOptions & { perChannel?: number | undefined; qualifiers?: string | undefined } = {}): Promise<Map<string, RawRepo[]>> {
   const results = new Map<string, RawRepo[]>();
   const jobs: { key: string; request: SearchRequest }[] = [];
   for (const term of terms) {

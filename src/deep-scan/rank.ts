@@ -13,10 +13,10 @@ export interface RankedRepo {
   description: string;
   stars: number;
   pushedAt: string;
-  language?: string | null;
+  language?: string | null | undefined;
   channel: Channel;
   terms: Set<string>;
-  readmeHead?: string;
+  readmeHead?: string | undefined;
 }
 
 export interface RoundStat {
