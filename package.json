@@ -27,6 +27,11 @@
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"
+    },
+    "catalog": {
+      "category": "扫描与研究",
+      "blurb": "GitHub 赛道深度扫描器：多词四通道搜索 + 自动挖 topic 迭代，止损规则内置",
+      "entries": "`/deep-scan` `deep_scan`"
     }
   },
   "engines": {
