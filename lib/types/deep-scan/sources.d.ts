@@ -5,11 +5,9 @@
  *  - readme  `term in:readme`→ README full-text, finds repos whose blurb omits the term
  *  - topic   `topic:t`       → whole-niche sweep for competitive mapping
  *  The fetch impl is injectable so tests run offline. */
-export interface FetchOptions {
-    token?: string | undefined;
-    signal?: AbortSignal | undefined;
-    fetchImpl?: typeof fetch | undefined;
-}
+import { readTokenFromEnv, type FetchOptions } from '@dsh-family/kit/kit/http';
+export { readTokenFromEnv };
+export type { FetchOptions };
 export interface RawRepo {
     full_name: string;
     description: string | null;
@@ -39,5 +37,4 @@ export declare function searchAll(terms: string[], channels: Channel[], options?
 }): Promise<Map<string, RawRepo[]>>;
 /** Raw README body for deep-dive repos (raw accept header skips base64). */
 export declare function fetchReadmeHead(fullName: string, bytes?: number, options?: FetchOptions): Promise<string | undefined>;
-export declare function readTokenFromEnv(envNames: string[]): string | undefined;
 //# sourceMappingURL=sources.d.ts.map

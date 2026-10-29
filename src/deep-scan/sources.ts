@@ -6,11 +6,17 @@
  *  - topic   `topic:t`       → whole-niche sweep for competitive mapping
  *  The fetch impl is injectable so tests run offline. */
 
-export interface FetchOptions {
-  token?: string | undefined;
-  signal?: AbortSignal | undefined;
-  fetchImpl?: typeof fetch | undefined;
-}
+import { githubJson, githubText, readTokenFromEnv, type FetchOptions } from '@dsh-family/kit/kit/http';
+
+export { readTokenFromEnv };
+export type { FetchOptions };
+
+const USER_AGENT = 'dsh-plugin-deep-scan';
+
+/** Every request goes through the shared client, keeping the fetch seam so
+ *  tests can run the whole pipeline offline. */
+const getJson = (url: string, options: FetchOptions): Promise<unknown> =>
+  githubJson(url, { ...options, userAgent: USER_AGENT });
 
 export interface RawRepo {
   full_name: string;
@@ -21,24 +27,6 @@ export interface RawRepo {
   language?: string | null;
   fork?: boolean;
   archived?: boolean;
-}
-
-type FetchFn = (url: string, init: { headers: Record<string, string>; signal?: AbortSignal | undefined }) => Promise<{ ok: boolean; status: number; json(): Promise<unknown>; text(): Promise<string> }>;
-
-const defaultFetch: FetchFn = async (url, init) => {
-  const requestInit: RequestInit = { headers: init.headers };
-  if (init.signal !== undefined) requestInit.signal = init.signal;
-  const response = await fetch(url, requestInit);
-  return { ok: response.ok, status: response.status, json: () => response.json(), text: () => response.text() };
-};
-
-async function getJson(url: string, options: FetchOptions): Promise<unknown> {
-  const headers: Record<string, string> = { 'User-Agent': 'dsh-plugin-deep-scan', Accept: 'application/vnd.github+json' };
-  if (options.token) headers.Authorization = `Bearer ${options.token}`;
-  const doFetch: FetchFn = options.fetchImpl ? (options.fetchImpl as unknown as FetchFn) : defaultFetch;
-  const response = await doFetch(url, { headers, signal: options.signal });
-  if (!response.ok) throw new Error(`HTTP ${response.status} for ${url}`);
-  return response.json();
 }
 
 export type Channel = 'phrase' | 'loose' | 'readme' | 'topic';
@@ -102,12 +90,11 @@ export async function searchAll(terms: string[], channels: Channel[], options: F
 /** Raw README body for deep-dive repos (raw accept header skips base64). */
 export async function fetchReadmeHead(fullName: string, bytes = 600, options: FetchOptions = {}): Promise<string | undefined> {
   try {
-    const headers: Record<string, string> = { 'User-Agent': 'dsh-plugin-deep-scan', Accept: 'application/vnd.github.raw+json' };
-    if (options.token) headers.Authorization = `Bearer ${options.token}`;
-    const doFetch: FetchFn = options.fetchImpl ? (options.fetchImpl as unknown as FetchFn) : defaultFetch;
-    const response = await doFetch(`https://api.github.com/repos/${fullName}/readme`, { headers, signal: options.signal });
-    if (!response.ok) return undefined;
-    const body = (await response.text()).trim();
+    const body = (await githubText(`https://api.github.com/repos/${fullName}/readme`, {
+      ...options,
+      userAgent: USER_AGENT,
+      accept: 'application/vnd.github.raw+json',
+    })).trim();
     const flat = body.replace(/\s+/g, ' ').trim();
     return flat ? flat.slice(0, bytes) : undefined;
   } catch {
@@ -115,10 +102,3 @@ export async function fetchReadmeHead(fullName: string, bytes = 600, options: Fe
   }
 }
 
-export function readTokenFromEnv(envNames: string[]): string | undefined {
-  for (const name of envNames) {
-    const value = process.env[name]?.trim();
-    if (value) return value;
-  }
-  return undefined;
-}

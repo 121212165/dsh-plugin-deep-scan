@@ -76,5 +76,8 @@
   "bugs": {
     "url": "https://github.com/121212165/dsh-plugin-deep-scan/issues"
   },
-  "icon": "./icon.svg"
+  "icon": "./icon.svg",
+  "dependencies": {
+    "@dsh-family/kit": "github:121212165/dsh-plugin-kit#v0.2.1"
+  }
 }
