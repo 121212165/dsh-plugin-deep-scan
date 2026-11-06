@@ -17,23 +17,23 @@ export interface Config {
     /** where /deep-scan --save writes reports; /obsidian-push-file archives them */
     reportDir?: string;
 }
-export declare const Config: Schema<Schemastery.ObjectS<{
-    enabled: Schema<boolean, boolean>;
-    tokenEnv: Schema<string[], string[]>;
-    perChannel: Schema<number, number>;
-    mineRounds: Schema<number, number>;
-    deep: Schema<number, number>;
-    newKeepRatio: Schema<number, number>;
-    reportDir: Schema<string, string>;
-}>, Schemastery.ObjectT<{
-    enabled: Schema<boolean, boolean>;
-    tokenEnv: Schema<string[], string[]>;
-    perChannel: Schema<number, number>;
-    mineRounds: Schema<number, number>;
-    deep: Schema<number, number>;
-    newKeepRatio: Schema<number, number>;
-    reportDir: Schema<string, string>;
-}>>;
+export declare const Config: Schema<Schemastery.ObjectS<NoInfer<{
+    enabled: Schema<boolean, boolean, "defined">;
+    tokenEnv: Schema<string[], string[], "defined">;
+    perChannel: Schema<number, number, "defined">;
+    mineRounds: Schema<number, number, "defined">;
+    deep: Schema<number, number, "defined">;
+    newKeepRatio: Schema<number, number, "defined">;
+    reportDir: Schema<string, string, "defined">;
+}>>, Schemastery.ObjectT<NoInfer<{
+    enabled: Schema<boolean, boolean, "defined">;
+    tokenEnv: Schema<string[], string[], "defined">;
+    perChannel: Schema<number, number, "defined">;
+    mineRounds: Schema<number, number, "defined">;
+    deep: Schema<number, number, "defined">;
+    newKeepRatio: Schema<number, number, "defined">;
+    reportDir: Schema<string, string, "defined">;
+}>>, "plain">;
 export declare function expandHome(path: string): string;
 export declare function apply(ctx: Context, config: Config): void;
 //# sourceMappingURL=plugin.d.ts.map
